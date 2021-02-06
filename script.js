@@ -1,0 +1,86 @@
+
+const form = document.getElementById('form');
+const search = document.getElementById('search');
+const showFoodIngredients = document.getElementById("show-food-ingredients");
+const showFood = document.getElementById("show-food");
+
+const init = () => {
+  showFoodIngredients.style.display = 'none';
+  showFood.className = '';
+  showFood.innerHTML = '';
+}
+/// api URL ///
+const apiURL = 'https://www.themealdb.com/api/json/v1/1/search.php?s=';
+
+/// adding event listener in form
+form.addEventListener('submit', (e) => {
+  const searchValue = search.value.trim();
+  e.preventDefault();
+  if (!searchValue) {
+    alert("There is nothing to search")
+  }
+  else {
+    searchFood(searchValue)
+  }
+});
+
+const searchFood = async searchValue => {
+  const searchResult = await fetch(`${apiURL}${searchValue}`);
+  const data = await searchResult.json();
+  displayFoods(data.meals);
+}
+
+const displayFoods = foodItems => {
+  init();
+  if (foodItems === null) {
+    const errorMessage = `
+    <div class="text-center">
+      <h1>This Food Recipe Is Not Available Now </h1>
+    </div>`;
+    showFood.innerHTML = errorMessage;
+  } else {
+    showFood.className = 'showing-food';
+    foodItems.forEach(foodItem => {
+      const foodItemDiv = document.createElement('div');
+      foodItemDiv.className = 'food-item';
+      const foodItemInfo = `
+        <a onclick="displayFoodIngredients('${foodItem.strMeal}')" class="food-ingredients-link" href="#show-food-ingredients">
+          <img src="${foodItem.strMealThumb}" class="food-image img-fluid" alt="food-image">
+          <h5 class="food-name my-3">${foodItem.strMeal}</h5>
+        </a>
+        `;
+      foodItemDiv.innerHTML = foodItemInfo;
+      showFood.appendChild(foodItemDiv);
+    });
+  }
+}
+
+const displayFoodIngredients = async foodName => {
+  const foodItem = await fetch(`${apiURL}${foodName}`);
+  const data = await foodItem.json();
+  renderFoodIngredients(data.meals[0]);
+}
+
+const renderFoodIngredients = foodItem => {
+  showFoodIngredients.style.display = 'block';
+  showFoodIngredients.innerHTML = `
+    <img src="${foodItem.strMealThumb}" class="food-image img-fluid mb-4" alt="">
+    <div class="ms-4">
+      <h2 class="food-name mb-3">${foodItem.strMeal}</h2>
+      <h5 >Ingredients</h5>
+    </div>
+    `;
+  for (let i = 1; i <= 20; i++) {
+    const ingredient = 'strIngredient' + i;
+    const measure = 'strMeasure' + i;
+    if (!foodItem[ingredient]) break;
+    else {
+      const ingredients = document.createElement("div");
+      ingredients.className = 'ms-4'
+      const ingredientInfo = `
+      <span><i class="fas fa-check-square icon"> </i></span> ${foodItem[ingredient]} ${foodItem[measure]}<span> </span>`;
+      ingredients.innerHTML = ingredientInfo;
+      showFoodIngredients.appendChild(ingredients);
+    }
+  }
+}
