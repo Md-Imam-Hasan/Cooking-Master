@@ -16,6 +16,7 @@ form.addEventListener('submit', (e) => {
   const searchValue = search.value.trim();
   e.preventDefault();
   if (!searchValue) {
+    init();
     alert("There is nothing to search");
   }
   else {
@@ -78,10 +79,10 @@ const renderFoodIngredients = foodItem => {
       <h2 class="food-name mb-3">${foodItem.strMeal}</h2>
       <h5 >Ingredients</h5>
     </div>`;
-    addIngredientList(foodItem);
+  addIngredientList(foodItem);
 }
 
-const addIngredientList = foodItem =>{
+const addIngredientList = foodItem => {
   for (let i = 1; ; i++) {
     const ingredient = 'strIngredient' + i;
     const measure = 'strMeasure' + i;
